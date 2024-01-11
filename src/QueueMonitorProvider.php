@@ -54,25 +54,34 @@ class QueueMonitorProvider extends ServiceProvider
         $now = now();
         $jobId = self::getJobId($job);
 
-        $monitor = QueueMonitor::query()->create([
-            'job_id' => $jobId,
-            'name' => $job->resolveName(),
-            'queue' => $job->getQueue(),
-            'started_at' => $now,
-            'attempt' => $job->attempts(),
-            'progress' => 0,
-        ]);
+        $silenced = false;
+        foreach (config("filament-jobs-monitor.silenced") as $item) {
+            if(\Str::contains($item,$job->resolveName())){
+                $silenced = true;
+            }
+        }
 
-        QueueMonitor::query()
-            ->where('id', '!=', $monitor->id)
-            ->where('job_id', $jobId)
-            ->where('failed', false)
-            ->whereNull('finished_at')
-            ->each(function (QueueMonitor $monitor) {
-                $monitor->finished_at = now();
-                $monitor->failed = true;
-                $monitor->save();
-            });
+        if(!$silenced){
+            $monitor = QueueMonitor::query()->create([
+                'job_id' => $jobId,
+                'name' => $job->resolveName(),
+                'queue' => $job->getQueue(),
+                'started_at' => $now,
+                'attempt' => $job->attempts(),
+                'progress' => 0,
+            ]);
+
+            QueueMonitor::query()
+                ->where('id', '!=', $monitor->id)
+                ->where('job_id', $jobId)
+                ->where('failed', false)
+                ->whereNull('finished_at')
+                ->each(function (QueueMonitor $monitor) {
+                    $monitor->finished_at = now();
+                    $monitor->failed = true;
+                    $monitor->save();
+                });
+        }
     }
 
     /**
