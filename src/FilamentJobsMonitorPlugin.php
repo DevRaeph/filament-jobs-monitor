@@ -47,6 +47,11 @@ class FilamentJobsMonitorPlugin implements Plugin
     protected ?bool $navigationCountBadge = null;
 
     /**
+     * The resource silenced Jobs.
+     */
+    protected ?array $silencedJobs = null;
+
+    /**
      * The pruning status.
      */
     protected ?bool $pruning = null;
@@ -279,6 +284,25 @@ class FilamentJobsMonitorPlugin implements Plugin
     public function pruningRetention(int $pruningRetention): static
     {
         $this->pruningRetention = $pruningRetention;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the resource silenced Jobs.
+     */
+    public function getSilencedJobs(): ?array
+    {
+        return $this->silencedJobs ?? config('filament-jobs-monitor.silenced');
+    }
+
+    /**
+     * Set the resource silenced Jobs.
+     */
+    public function silencedJobs(array $silencedJobs = null): static
+    {
+        $this->silencedJobs = $silencedJobs;
 
         return $this;
     }

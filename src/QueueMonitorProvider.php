@@ -55,7 +55,7 @@ class QueueMonitorProvider extends ServiceProvider
         $jobId = self::getJobId($job);
 
         $silenced = false;
-        foreach (config("filament-jobs-monitor.silenced") as $item) {
+        foreach (FilamentJobsMonitorPlugin::get()->getSilencedJobs() as $item) {
             if(\Str::contains($item,$job->resolveName())){
                 $silenced = true;
             }
