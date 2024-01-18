@@ -6,6 +6,7 @@ use Closure;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
+use Illuminate\Support\Facades\Gate;
 
 class FilamentJobsMonitorPlugin implements Plugin
 {
@@ -239,7 +240,7 @@ class FilamentJobsMonitorPlugin implements Plugin
      */
     public function shouldRegisterNavigation(): bool
     {
-        return $this->navigation ?? config('filament-jobs-monitor.resources.enabled');
+        return Gate::allows("view-queue-monitor");
     }
 
     /**
